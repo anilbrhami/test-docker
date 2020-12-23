@@ -1,0 +1,39 @@
+image: "abi-docker-local.artifactory-espoo1.int.net.nokia.com/abi/customers/apf:0.0.10"
+services:
+  - docker:stable-dind
+variables:
+  # ------------- Mandatory Variables for DinD -------------
+  # When using dind service we need to instruct docker, to talk with the
+  # daemon started inside of the service. The daemon is available with
+  # a network connection instead of the default /var/run/docker.sock socket.
+  #
+  # The 'docker' hostname is the alias of the service container as described at
+  # https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#accessing-the-services
+  #
+  # Note that if you're using the Kubernetes executor, the variable should be set to
+  # tcp://localhost:2375 because of how the Kubernetes executor connects services
+  # to the job container
+  DOCKER_HOST: tcp://localhost:2375
+  # For non-Kubernetes executors, we use tcp://docker:2375
+  # DOCKER_HOST: tcp://docker:2375
+  #
+  # This will instruct Docker not to start over TLS.
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+.common:
+  tags:
+    - &GIT_RUNNER nesc
+
+stages:
+    - build
+    
+before_script:
+     - echo $env:PATH
+
+build:
+    tags:
+        - *GIT_RUNNER
+    stage: build
+    script:
+        - echo $CI_PROJECT_DIR
+        #- echo pytest -v -rA --alluredir=./reports/ TestCases/test_1.py
